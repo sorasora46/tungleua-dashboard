@@ -74,7 +74,7 @@ app.post("/api/bills/:orderId/approve", async (req, res) => {
     const user = userResult.rows[0];
 
     // Update the user's balance by adding the approved amount
-    const updatedBalance = user.balance + parseFloat(approvedAmount);
+    const updatedBalance = parseFloat(user.balance) + parseFloat(approvedAmount);
     const updateUserQuery = `
       UPDATE users
       SET balance = $1
