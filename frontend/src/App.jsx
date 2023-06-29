@@ -8,6 +8,9 @@ const BillTable = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userIdFilter, setUserIdFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     fetchBills();
@@ -54,7 +57,9 @@ const BillTable = () => {
 
   const handleConfirmationModalConfirm = async () => {
     try {
-      await axios.delete(`https://dashapi.sorrakw.com/api/bills/${selectedOrderId}`);
+      await axios.delete(
+        `https://dashapi.sorrakw.com/api/bills/${selectedOrderId}`
+      );
       fetchBills();
       setConfirmationModalOpen(false);
     } catch (error) {
@@ -78,8 +83,51 @@ const BillTable = () => {
     return new Date(dateString).toLocaleDateString("en-GB", options);
   };
 
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleUserIdFilter = (e) => {
+    setUserIdFilter(e.target.value);
+  };
+
+  const handleDateFilter = (e) => {
+    setDateFilter(e.target.value);
+  };
+
+  const filteredBills = bills.filter(
+    (bill) =>
+      bill.user_id.includes(userIdFilter) &&
+      bill.created_at.includes(dateFilter)
+  );
+
+  const filteredAndSearchedBills = filteredBills.filter((bill) =>
+    bill.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="table-container">
+      <div className="filters">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearch}
+          placeholder="Search by name"
+        />
+        <input
+          type="text"
+          value={userIdFilter}
+          onChange={handleUserIdFilter}
+          placeholder="Filter by userId"
+        />
+        <input
+          type="text"
+          value={dateFilter}
+          onChange={handleDateFilter}
+          placeholder="Filter by date"
+        />
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -95,7 +143,7 @@ const BillTable = () => {
           </tr>
         </thead>
         <tbody>
-          {bills.map((bill) => (
+          {filteredAndSearchedBills.map((bill) => (
             <tr key={bill.id}>
               <td>{bill.id}</td>
               <td>{bill.user_id}</td>

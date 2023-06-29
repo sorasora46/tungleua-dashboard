@@ -96,3 +96,28 @@ tr:hover {
     font-size: 12px;
   }
 }
+
+.filters {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.filters input {
+  margin-right: 10px;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  font-size: 14px;
+}
+
+.filters input::placeholder {
+  color: #999;
+}
+
+.filters input:focus {
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
