@@ -36,29 +36,71 @@ app.get("/api/bills", async (req, res) => {
   }
 });
 
-app.post('/api/bills/:orderId/approve', (req, res) => {
+app.post("/api/bills/:orderId/approve", async (req, res) => {
   const orderId = req.params.orderId;
   const approvedAmount = req.body.amount;
 
-  // Logic to update the order status and approved amount in the database
-  // ...
-
-  // Return a success response
-  res.status(200).json({ message: 'Order approved successfully.' });
-});
-
-app.delete("/api/bills/:id", async (req, res) => {
-  const orderId = req.params.id;
-
   try {
-    await pool.query('DELETE FROM orders WHERE id = $1', [orderId]);
-    res.sendStatus(204);
+    // Get the existing order details from the database
+    const getOrderQuery = `
+      SELECT * FROM orders WHERE id = $1
+    `;
+    const getOrderValues = [orderId];
+    const { rows } = await pool.query(getOrderQuery, getOrderValues);
+    const order = rows[0];
+
+    // Check if the order exists and is in a pending status
+    if (!order || order.payment_status !== "pending") {
+      return res
+        .status(400)
+        .json({ error: "Invalid order or order is not pending." });
+    }
+
+    // Update the order status and add the approved amount to the user's balance
+    const updateOrderQuery = `
+      UPDATE orders
+      SET payment_status = $1
+      WHERE id = $2
+    `;
+    const updateOrderValues = ["approved", orderId];
+    await pool.query(updateOrderQuery, updateOrderValues);
+
+    // Get the user's existing balance from the database
+    const getUserQuery = `
+      SELECT * FROM users WHERE id = $1
+    `;
+    const getUserValues = [order.user_id];
+    const userResult = await pool.query(getUserQuery, getUserValues);
+    const user = userResult.rows[0];
+
+    // Update the user's balance by adding the approved amount
+    const updatedBalance = user.balance + approvedAmount;
+    const updateUserQuery = `
+      UPDATE users
+      SET balance = $1
+      WHERE id = $2
+    `;
+    const updateUserValues = [updatedBalance, order.user_id];
+    await pool.query(updateUserQuery, updateUserValues);
+
+    res.status(200).json({ message: "Order approved successfully." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An error occurred" });
   }
 });
 
+app.delete("/api/bills/:id", async (req, res) => {
+  const orderId = req.params.id;
+
+  try {
+    await pool.query("DELETE FROM orders WHERE id = $1", [orderId]);
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
