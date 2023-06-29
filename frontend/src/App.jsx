@@ -15,7 +15,7 @@ const BillTable = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await axios.get("http://localhost:8999/api/bills");
+      const response = await axios.get("https://dashapi.sorrakw.com/api/bills");
       setBills(response.data);
     } catch (error) {
       console.error(error);
@@ -36,7 +36,7 @@ const BillTable = () => {
     e.preventDefault();
     try {
       await axios.post(
-        `http://localhost:8999/api/bills/${selectedOrderId}/approve`,
+        `https://dashapi.sorrakw.com/api/bills/${selectedOrderId}/approve`,
         { amount }
       );
       fetchBills();
@@ -54,7 +54,7 @@ const BillTable = () => {
 
   const handleConfirmationModalConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:8999/api/bills/${selectedOrderId}`);
+      await axios.delete(`https://dashapi.sorrakw.com/api/bills/${selectedOrderId}`);
       fetchBills();
       setConfirmationModalOpen(false);
     } catch (error) {
