@@ -36,6 +36,17 @@ app.get("/api/bills", async (req, res) => {
   }
 });
 
+app.post('/api/bills/:orderId/approve', (req, res) => {
+  const orderId = req.params.orderId;
+  const approvedAmount = req.body.amount;
+
+  // Logic to update the order status and approved amount in the database
+  // ...
+
+  // Return a success response
+  res.status(200).json({ message: 'Order approved successfully.' });
+});
+
 app.delete("/api/bills/:id", async (req, res) => {
   const orderId = req.params.id;
 
