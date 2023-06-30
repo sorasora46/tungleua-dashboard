@@ -62,7 +62,7 @@ app.post("/api/bills/:orderId/approve", async (req, res) => {
       SET payment_status = $1
       WHERE id = $2
     `;
-    const updateOrderValues = ["approved", orderId];
+    const updateOrderValues = ["Success", orderId];
     await pool.query(updateOrderQuery, updateOrderValues);
 
     // Get the user's existing balance from the database
