@@ -20,6 +20,21 @@ const pool = new Pool({
 app.use(express.json());
 app.use(cors());
 
+app.get("/api/orders/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const query = `
+      SELECT id, created_at, payment_status FROM orders WHERE user_id = $1
+    `;
+    const { rows } = await pool.query(query, [userId]);
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 app.get("/api/bills", async (req, res) => {
   try {
     const query = `
@@ -74,7 +89,8 @@ app.post("/api/bills/:orderId/approve", async (req, res) => {
     const user = userResult.rows[0];
 
     // Update the user's balance by adding the approved amount
-    const updatedBalance = parseFloat(user.balance) + parseFloat(approvedAmount);
+    const updatedBalance =
+      parseFloat(user.balance) + parseFloat(approvedAmount);
     const updateUserQuery = `
       UPDATE users
       SET balance = $1
